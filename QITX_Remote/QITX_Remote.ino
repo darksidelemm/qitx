@@ -44,6 +44,8 @@
     
     POWER,<HIGH/LOW>	- Switch between 5V and 12V supplies, giving ~800mW or 5W TX power respectively.
     					  Note: This will only work if a relay to switch power is hooked up to pin <UNKNOWN>.
+    INHIBIT,<ON/OFF>    - Reads or sets the state of the INHIBIT variable.
+                        - This variable can be set by pressing a button wired between pin 0 and GND.
     					
     Message Control:
     
@@ -75,7 +77,9 @@
 //#define DEBUG_ON	1
 
 // Pin definitions
-#define LED_PIN	13
+#define LED_PIN	            13
+#define BUTTON_PIN          0
+#define BUTTON_INTERRUPT    2
 #define POWER_CONTROL_PIN	5
 #define POWER_MASTER_PIN	4
 
@@ -126,6 +130,8 @@ ring_buffer data_tx_buffer = { { 0 }, 0, 0};
 int rf_on = 0;
 unsigned long tx_timer = 0;
 
+// Variable for the tx inhibit button
+volatile uint8_t button_state = 0;
 
 
 void setup(){
@@ -137,6 +143,14 @@ void setup(){
 	pinMode(POWER_CONTROL_PIN, OUTPUT);
 	setPower();
 	
+	// Note: You need to activate the interrupt BEFORE activating the internal pullups.
+	// This means the interrupt will likely activate at least once on boot.
+	attachInterrupt(BUTTON_INTERRUPT,button_isr,FALLING);
+    pinMode(BUTTON_PIN,INPUT_PULLUP);
+    // Reset the button state variable, just in case the interrupt has fired 
+    button_state = 0;
+    digitalWrite(LED_PIN, LOW);
+
 	pinMode(5, OUTPUT);
 	digitalWrite(5, LOW);
 	
@@ -156,7 +170,6 @@ void setup(){
 	AD9834_Reset(0);
 	AD9834_DAC_ON(0);
 
-	
 }
 
 void loop(){
@@ -273,6 +286,9 @@ int parseCommand(String input){
 		}else if(input.startsWith("RTTY")){
 			transmit_rtty();
 			return 0;
+		}else if(input.startsWith("INHIBIT")){
+		    read_inhibit();
+		    return 0;
 		}else{
 			// No other commands are valid without parameters. Error
 			return 1;
@@ -301,6 +317,8 @@ int parseCommand(String input){
 			return pskTerminal(param1);
 		}else if(input.startsWith("PSK")){
 			return parsePSK(param1);
+		}else if(input.startsWith("INHIBIT")){
+		    return write_inhibit(param1);
 		}else{
 			// No other commands are valid with only one parameter. Error
 			return 1;
@@ -598,6 +616,33 @@ int parseRTTY(String baud, String shift){
 	//rtty_tx_string(txmessage);
 	rtty_start(baudrate,shift_freq);
 	store_string(txmessage);
+	return 0;
+}
+
+// Button Handling Functions
+
+void button_isr(){
+    button_state = 1;
+    digitalWrite(LED_PIN, HIGH);
+}
+
+void read_inhibit(){
+    Serial.print("INHIBIT,");
+    if(button_state) Serial.println("ON");
+    else    Serial.println("OFF");
+}
+
+int write_inhibit(String input){
+	if(input.startsWith("ON")){
+		button_state = 1;
+		Serial.println("INHIBIT,ON");
+	}else if(input.startsWith("OFF")){
+		button_state = 0;
+		digitalWrite(LED_PIN, LOW);
+		Serial.println("INHIBIT,OFF");
+	}else{
+		return -1;
+	}
 	return 0;
 }
 
