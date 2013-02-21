@@ -18,16 +18,30 @@
 
 import serial,sys,time
 
+try:
+    import RPi.GPIO as GPIO
+    rpi_enabled = True
+except ImportError:
+    print "No RPi library detected. Disabling RPi GPIO routines."
+    rpi_enabled = False
+    
 default_serial_device = '/dev/arduino'
-default_baud_rate = 38400
 
 class QITX(object):
     
-    def __init__(self,serial_device=default_serial_device, baud_rate=default_baud_rate):
+    def __init__(self,serial_device=default_serial_device,power_pin=25):
+    
         try:
-            self.s = serial.Serial(serial_device, baud_rate, timeout=1)
+            self.s = serial.Serial(serial_device, 38400, timeout=1)
         except serial.serialutil.SerialException as e:
             print "ERROR:",e
+            
+        if rpi_enabled:
+            self.power_pin = power_pin
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.power_pin,GPIO.OUT)
+            GPIO.output(self.power_pin,False)
+            
 
     def close(self):
         self.s.close()
@@ -74,6 +88,9 @@ class QITX(object):
     def clear_inhibit(self):
         return self.set_parameter('INHIBIT','OFF')
         
+    def power_on(self, power):
+        if rpi_enabled:
+            GPIO.output(self.power_pin, power)
     
     def transmit_psk(self,baudrate=31):
         self.s.write('PSK,'+str(baudrate)+'\n')

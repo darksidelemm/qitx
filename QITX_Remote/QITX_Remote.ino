@@ -84,8 +84,8 @@
 #define POWER_MASTER_PIN	4
 
 // Some defines for code readability
-#define POWER_HIGH	1
-#define POWER_LOW	0
+#define POWER_HIGH	0
+#define POWER_LOW	1
 #define SSB_USB		1
 #define SSB_LSB		0
 #define FREQ_LIMIT_LOWER	0 //7000000
@@ -96,7 +96,7 @@
 unsigned long tx_freq = 7045000; // Transmit Frequency, Hz. This gets overwritten when reading from the EEPROM.
 unsigned long tx_offset = 1000;
 int tx_sideband = SSB_LSB;
-int tx_power = POWER_LOW;
+int tx_power = POWER_HIGH;
 // Arrays for callsign and transmit message storage.
 char callsign[7] = "VK5QI";
 char txmessage[MSG_LEN_LIMIT] = "TEST BEACON";
@@ -151,8 +151,6 @@ void setup(){
     button_state = 0;
     digitalWrite(LED_PIN, LOW);
 
-	pinMode(5, OUTPUT);
-	digitalWrite(5, LOW);
 	
 	// Read in the data stored in the EEPROM.
 	read_callsign(callsign);
@@ -457,8 +455,8 @@ int parsePower(String input){
 	}
 	setPower();
 	Serial.print("POWER,");
-	if(tx_power) Serial.println("HIGH");
-	else Serial.println("LOW");
+	if(tx_power) Serial.println("LOW");
+	else Serial.println("HIGH");
 	return 0;
 }
 
