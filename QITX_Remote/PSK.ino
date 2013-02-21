@@ -372,15 +372,17 @@ int pskTerminal(String baud){
 	if(baudrate>500) return -1;
 	
 	bpsk_start(baudrate);
+	digitalWrite(LED_PIN, HIGH);
 	
-	while(exit_count<4){
-		if(Serial.available()>0){
-			char c = Serial.read();
-			store_char(c,&data_tx_buffer); // Add the character to the transmit ring buffer.
-			if(c=='\n') exit_count++; 
-		}
+	while(1){
+	    if(Serial.available()>0){
+		    char c = Serial.read();
+		    if(c==4) break;
+            store_char(c,&data_tx_buffer); // Add the character to the transmit ring buffer.
+        }
 	}
 	bpsk_stop();
+	digitalWrite(LED_PIN, LOW);
 	return 0;
 }
 

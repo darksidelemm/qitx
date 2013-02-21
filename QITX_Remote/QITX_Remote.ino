@@ -266,8 +266,8 @@ int parseCommand(String input){
 			return 0;
 		}else if(input.startsWith("POWER")){
 			Serial.print("POWER,");
-			if(tx_power) Serial.println("HIGH");
-			else Serial.println("LOW");
+			if(tx_power) Serial.println("LOW");
+			else Serial.println("HIGH");
 			return 0;
 		}else if(input.startsWith("MSG")){
 			Serial.print("MSG,"); Serial.println(txmessage);
