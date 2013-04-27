@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# QITX PSK Transmitter routine
+# QITX Ident Transmitter
 #
 # Copyright 2012 Mark Jessop <mark.jessop@adelaide.edu.au>
 # 
@@ -39,13 +39,6 @@ except:
     print "Error reading config file"
     sys.exit(1)
 
-#Generate our random string, using the current date and time as a seed.
-timeseed = time.strftime("%d-%m-%Y %H:%M", time.gmtime())
-random.seed(timeseed)
-txstring = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for x in range(32))
-txstring = "DE VK5QI " + txstring
-print "Transmitting: " + txstring
-
 # Connect to the transmitter
 tx = QITX.QITX(conf['serial_device'])
 
@@ -74,20 +67,10 @@ tx.set_parameter("FREQ",conf['freq'])
 tx.set_parameter("FREQOFF",conf['freqoff'])
 tx.set_parameter("FREQSSB",conf['freqssb'])
 tx.set_parameter("POWER",conf['power'])
+tx.set_parameter("CALL",conf['mycall'])
 
-# Switch into PSK Terminal mode, and transmit our string.
-tx.s.write("PSKTERM,31\n")
+# Ident
 tx.power_on(True)
-time.sleep(3)
-# Transmit our string character by character
-for x in txstring:
-        tx.s.write(x)
-        print x
-        time.sleep(0.4)
-time.sleep(3)
+time.sleep(1)
+tx.transmit_ident()
 tx.power_on(False)
-tx.s.write("\x04")
-
-# Close our connection to the transmitter
-tx.close()
-
