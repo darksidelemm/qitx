@@ -23,7 +23,7 @@
 #
 
 from xmlrpclib import ServerProxy, Error
-import socket,sys,time,random,string,binascii,json
+import socket,sys,time,random,string,binascii,json,os
 from datetime import datetime,timedelta
 
 # Assume fldigi is running on the local machine.
@@ -35,7 +35,7 @@ flarq_port = 7322
 # but should be a good enough start point for fldigi to find it.
 psk_center = 1007
 domino_center = 1140
-squelch_threshold = 2.0
+squelch_threshold = 4.0
 
 # Can set this to False for debugging purposes.
 delay = True
