@@ -1,0 +1,6 @@
+[
+{"freq": 7038000, "mode": "IDENT", "starttime": 0, "freqssb": "LSB"},
+{"freq": 7038000, "mode": "BPSK31", "starttime": 30, "freqssb": "LSB"}, 
+{"freq": 7038000, "mode": "BPSK63", "starttime": 90, "freqssb": "LSB"},
+{"freq": 7038000, "mode": "BPSK125", "starttime": 120, "freqssb": "LSB"}
+]

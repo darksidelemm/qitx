@@ -1,0 +1,4 @@
+[
+{"freq": 7038000, "mode": "BPSK125", "starttime": 0, "freqssb": "LSB"},
+{"freq": 7038000, "mode": "BPSK250", "starttime": 30, "freqssb": "LSB"}
+]
